@@ -1,0 +1,320 @@
+{
+    "buildInfo": {
+        "contractCrate": {
+            "name": "token-escrow",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.66.2"
+        }
+    },
+    "docs": [
+        "Token Escrow Smart Contract on MultiversX.",
+        "Enables secure, trustless peer-to-peer token and asset swaps."
+    ],
+    "name": "TokenEscrow",
+    "constructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "docs": [
+                "Stores the offer on the blockchain and locks the deposited tokens in escrow."
+            ],
+            "name": "createOffer",
+            "rustMethodName": "create_offer",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "accepted_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "wanted_token_identifier",
+                    "type": "EgldOrEsdtTokenIdentifier"
+                },
+                {
+                    "name": "wanted_token_nonce",
+                    "type": "u64"
+                },
+                {
+                    "name": "wanted_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "deadline",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "docs": [
+                "Cancels the specified offer, returning the locked tokens to the creator."
+            ],
+            "name": "cancelOffer",
+            "rustMethodName": "cancel_offer",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Completes the trade and transfers assets to both parties."
+            ],
+            "name": "acceptOffer",
+            "rustMethodName": "accept_offer",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "*"
+            ],
+            "inputs": [
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getOffer",
+            "rustMethodName": "get_offer",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Option<Offer>"
+                }
+            ]
+        },
+        {
+            "name": "getOffers",
+            "rustMethodName": "get_offers",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "variadic<Offer>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getOffersForUser",
+            "rustMethodName": "get_offers_for_user",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "user",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<Offer>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getCreatedOffers",
+            "rustMethodName": "get_created_offers",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "user",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<Offer>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getReceivedOffers",
+            "rustMethodName": "get_received_offers",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "user",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<Offer>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getLastOfferId",
+            "rustMethodName": "last_offer_id",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        }
+    ],
+    "events": [
+        {
+            "identifier": "offerCreated",
+            "inputs": [
+                {
+                    "name": "offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "creator",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "accepted_address",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "offer",
+                    "type": "Offer"
+                }
+            ]
+        },
+        {
+            "identifier": "offerCancelled",
+            "inputs": [
+                {
+                    "name": "offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "caller",
+                    "type": "Address",
+                    "indexed": true
+                }
+            ]
+        },
+        {
+            "identifier": "offerAccepted",
+            "inputs": [
+                {
+                    "name": "offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "caller",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "creator",
+                    "type": "Address",
+                    "indexed": true
+                }
+            ]
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "EgldOrEsdtTokenPayment": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "token_identifier",
+                    "type": "EgldOrEsdtTokenIdentifier"
+                },
+                {
+                    "name": "token_nonce",
+                    "type": "u64"
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        "Offer": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                },
+                {
+                    "name": "creator",
+                    "type": "Address"
+                },
+                {
+                    "name": "accepted_address",
+                    "type": "Address"
+                },
+                {
+                    "name": "offered_payment",
+                    "type": "EgldOrEsdtTokenPayment"
+                },
+                {
+                    "name": "wanted_payment",
+                    "type": "EgldOrEsdtTokenPayment"
+                },
+                {
+                    "name": "deadline",
+                    "type": "u64"
+                },
+                {
+                    "name": "status",
+                    "type": "OfferStatus"
+                }
+            ]
+        },
+        "OfferStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Active",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Accepted",
+                    "discriminant": 1
+                },
+                {
+                    "name": "Cancelled",
+                    "discriminant": 2
+                }
+            ]
+        }
+    }
+}

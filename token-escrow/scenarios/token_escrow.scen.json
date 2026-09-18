@@ -1,0 +1,148 @@
+{
+    "name": "token_escrow_lifecycle",
+    "comment": "Complete end-to-end lifecycle test for Token Escrow: deploy, create offer, query, accept offer, verify swap",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "1",
+                    "balance": "0"
+                },
+                "address:alice": {
+                    "nonce": "1",
+                    "balance": "10,000,000,000,000,000,000"
+                },
+                "address:bob": {
+                    "nonce": "1",
+                    "balance": "1,000,000,000,000,000,000",
+                    "esdt": {
+                        "str:USDC-123456": "500,000,000"
+                    }
+                }
+            },
+            "newAddresses": [
+                {
+                    "creatorAddress": "address:owner",
+                    "creatorNonce": "1",
+                    "newAddress": "sc:token_escrow"
+                }
+            ]
+        },
+        {
+            "step": "scDeploy",
+            "id": "deploy-escrow",
+            "tx": {
+                "from": "address:owner",
+                "contractCode": "mxsc:../output/token-escrow.mxsc.json",
+                "arguments": [],
+                "gasLimit": "10,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "logs": [],
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "id": "alice-create-offer",
+            "tx": {
+                "from": "address:alice",
+                "to": "sc:token_escrow",
+                "egldValue": "1,000,000,000,000,000,000",
+                "function": "createOffer",
+                "arguments": [
+                    "address:bob",
+                    "str:USDC-123456",
+                    "0",
+                    "500,000,000",
+                    "0"
+                ],
+                "gasLimit": "10,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [
+                    "1"
+                ],
+                "status": "",
+                "logs": "*",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scQuery",
+            "id": "check-last-offer-id",
+            "tx": {
+                "to": "sc:token_escrow",
+                "function": "getLastOfferId",
+                "arguments": []
+            },
+            "expect": {
+                "out": [
+                    "1"
+                ],
+                "status": ""
+            }
+        },
+        {
+            "step": "scCall",
+            "id": "bob-accept-offer",
+            "tx": {
+                "from": "address:bob",
+                "to": "sc:token_escrow",
+                "esdtValue": [
+                    {
+                        "tokenIdentifier": "str:USDC-123456",
+                        "value": "500,000,000"
+                    }
+                ],
+                "function": "acceptOffer",
+                "arguments": [
+                    "1"
+                ],
+                "gasLimit": "10,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "logs": "*",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "2",
+                    "balance": "0"
+                },
+                "address:alice": {
+                    "nonce": "2",
+                    "balance": "9,000,000,000,000,000,000",
+                    "esdt": {
+                        "str:USDC-123456": "500,000,000"
+                    }
+                },
+                "address:bob": {
+                    "nonce": "2",
+                    "balance": "2,000,000,000,000,000,000",
+                    "esdt": {}
+                },
+                "sc:token_escrow": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "esdt": {},
+                    "storage": "*"
+                }
+            }
+        }
+    ]
+}
